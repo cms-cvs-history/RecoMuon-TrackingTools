@@ -1,0 +1,13 @@
+block MuonServiceProxy = { 
+
+    PSet ServiceParameters ={
+	
+	untracked vstring Propagators = {"SteppingHelixPropagatorAny"}
+	
+	#    vstring Propagators = {
+	#	SteppingHelixPropagatorAny,
+	#	SteppingHelixPropagatorAlong,
+	#	SteppingHelixPropagatorOpposite
+	#    }
+    }
+}
