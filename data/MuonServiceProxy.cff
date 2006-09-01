@@ -4,10 +4,10 @@ block MuonServiceProxy = {
 	
 	untracked vstring Propagators = {"SteppingHelixPropagatorAny"}
 	
-	#    vstring Propagators = {
-	#	SteppingHelixPropagatorAny,
-	#	SteppingHelixPropagatorAlong,
-	#	SteppingHelixPropagatorOpposite
+	#    untracked vstring Propagators = {
+	#	"SteppingHelixPropagatorAny",
+	#	"SteppingHelixPropagatorAlong",
+	#	"SteppingHelixPropagatorOpposite"
 	#    }
     }
 }
