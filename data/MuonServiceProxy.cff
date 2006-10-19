@@ -6,7 +6,7 @@ block MuonServiceProxy = {
 
     PSet ServiceParameters ={
 	
-	untracked vstring Propagators = {"SteppingHelixPropagatorAny"}
+	untracked vstring Propagators = {"SteppingHelixPropagatorAny","SteppingHelixPropagatorAlong"}
 	
 	#    untracked vstring Propagators = {
 	#	"SteppingHelixPropagatorAny",
