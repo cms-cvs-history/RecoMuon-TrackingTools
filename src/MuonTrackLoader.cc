@@ -2,8 +2,8 @@
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
- *  $Date: 2006/11/16 16:13:37 $
- *  $Revision: 1.33 $
+ *  $Date: 2007/01/04 00:39:11 $
+ *  $Revision: 1.35 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -226,10 +226,16 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
     LogError(metname)<<"Extrapolation to vertex failed!";
     return reco::Track(); // FIXME: how to report this?
   }
-  PerigeeConversions conv;
-  double pt = 0.0;
-  PerigeeTrajectoryParameters perigeeParameters = conv.ftsToPerigeeParameters(*tscp.freeState(),vtx,pt);
-  PerigeeTrajectoryError perigeeError = conv.ftsToPerigeeError(*tscp.freeState());
+
+  //  PerigeeConversions conv;
+  //  double pt = 0.0;
+  //  PerigeeTrajectoryParameters perigeeParameters = conv.ftsToPerigeeParameters(*tscp.freeState(),vtx,pt);
+  //  PerigeeTrajectoryError perigeeError = conv.ftsToPerigeeError(*tscp.freeState());
+
+  GlobalPoint pca = tscp.globalPosition();
+  math::XYZPoint persistentPCA(pca.x(),pca.y(),pca.z());
+  GlobalVector p = tscp.globalMomentum();
+  math::XYZVector persistentMomentum(p.x(),p.y(),p.z());
 
   const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
   
@@ -243,10 +249,10 @@ reco::Track MuonTrackLoader::buildTrack(const Trajectory& trajectory) const {
 
   reco::Track track(trajectory.chiSquared(), 
 		    ndof,
-		    perigeeParameters, 
-		    pt,
-		    perigeeError,
-		    innerTSOS.charge());
+		    persistentPCA,
+		    persistentMomentum,
+		    innerTSOS.charge(),
+		    tscp.curvilinearError());
   return track;
 
 }

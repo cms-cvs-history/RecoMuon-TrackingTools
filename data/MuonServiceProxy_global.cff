@@ -1,17 +1,2 @@
-include "TrackingTools/MaterialEffects/data/MaterialPropagator.cfi"
-include "TrackingTools/MaterialEffects/data/OppositeMaterialPropagator.cfi"
-include "TrackPropagation/SteppingHelixPropagator/data/SteppingHelixPropagatorAlong.cfi"
-include "TrackPropagation/SteppingHelixPropagator/data/SteppingHelixPropagatorOpposite.cfi"
-include "TrackPropagation/SteppingHelixPropagator/data/SteppingHelixPropagatorAny.cfi"
-
-block MuonServiceProxy = { 
-    
-    PSet ServiceParameters ={
-	
-	untracked vstring Propagators = {
-	    "SteppingHelixPropagatorAny",
-	    "PropagatorWithMaterial",
-	    "PropagatorWithMaterialOpposite"
-	}
-    }
-}
+# this one is obsolete. Please use this:
+include "RecoMuon/TrackingTools/data/MuonServiceProxy.cff"
