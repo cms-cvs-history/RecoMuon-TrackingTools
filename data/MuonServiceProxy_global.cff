@@ -1,2 +1,0 @@
-# this one is obsolete. Please use this:
-include "RecoMuon/TrackingTools/data/MuonServiceProxy.cff"
