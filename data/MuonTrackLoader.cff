@@ -1,0 +1,40 @@
+include "TrackingTools/KalmanUpdators/data/KFUpdatorESProducer.cfi"
+
+es_module KFSmootherForMuonTrackLoader = KFTrajectorySmootherESProducer
+{
+    string ComponentName = "KFSmootherForMuonTrackLoader"
+    
+    string Propagator = "SmartPropagatorOpposite"
+    string Updator = "KFUpdator"
+    string Estimator = "Chi2EstimatorForRefit"
+}
+
+block MuonTrackLoaderForSTA = {   
+    PSet TrackLoaderParameters = {
+	string TrackLoaderPropagator = "SteppingHelixPropagatorOpposite"
+	bool VertexConstraint = true
+	untracked bool PutTrajectoryIntoEvent = true
+	bool DoSmoothing = false
+    }
+}
+
+block MuonTrackLoaderForGLB = {   
+    PSet TrackLoaderParameters = {
+	string TrackLoaderPropagator = "SteppingHelixPropagatorOpposite"
+	bool VertexConstraint = false
+	untracked bool PutTrajectoryIntoEvent = true
+	bool DoSmoothing = false
+    }
+}
+
+block MuonTrackLoaderForL3 = {
+    PSet TrackLoaderParameters = {
+	string TrackLoaderPropagator = "SteppingHelixPropagatorAny"
+	untracked bool PutTrajectoryIntoEvent = true
+	untracked bool PutTkTrackIntoEvent = true
+	untracked string MuonSeededTracksInstance = "L2Seeded"
+	bool VertexConstraint = false
+	bool DoSmoothing = true
+	string Smoother = "KFSmootherForMuonTrackLoader"
+    }
+}
