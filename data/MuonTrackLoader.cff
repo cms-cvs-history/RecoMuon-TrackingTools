@@ -34,7 +34,7 @@ block MuonTrackLoaderForL3 = {
 	untracked bool PutTkTrackIntoEvent = true
 	untracked string MuonSeededTracksInstance = "L2Seeded"
 	bool VertexConstraint = false
-	bool DoSmoothing = true
+	bool DoSmoothing = false
 	string Smoother = "KFSmootherForMuonTrackLoader"
     }
 }
