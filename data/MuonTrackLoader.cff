@@ -15,6 +15,7 @@ block MuonTrackLoaderForSTA = {
 	bool VertexConstraint = true
 	untracked bool PutTrajectoryIntoEvent = true
 	bool DoSmoothing = false
+	string Smoother = "KFSmootherForMuonTrackLoader"
     }
 }
 
@@ -24,6 +25,7 @@ block MuonTrackLoaderForGLB = {
 	bool VertexConstraint = false
 	untracked bool PutTrajectoryIntoEvent = true
 	bool DoSmoothing = false
+	string Smoother = "KFSmootherForMuonTrackLoader"	
     }
 }
 
