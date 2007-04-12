@@ -32,7 +32,7 @@ block MuonTrackLoaderForGLB = {
 	string TrackLoaderPropagator = "SteppingHelixPropagatorOpposite"
 	bool VertexConstraint = false
 	untracked bool PutTrajectoryIntoEvent = true
-	bool DoSmoothing = false
+	bool DoSmoothing = true
 	string Smoother = "KFSmootherForMuonTrackLoader"	
     }
 }
@@ -44,7 +44,7 @@ block MuonTrackLoaderForL3 = {
 	untracked bool PutTkTrackIntoEvent = true
 	untracked string MuonSeededTracksInstance = "L2Seeded"
 	bool VertexConstraint = false
-	bool DoSmoothing = false
+	bool DoSmoothing = true
 	string Smoother = "KFSmootherForMuonTrackLoader"
     }
 }
