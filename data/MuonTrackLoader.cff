@@ -48,3 +48,13 @@ block MuonTrackLoaderForL3 = {
 	string Smoother = "KFSmootherForMuonTrackLoader"
     }
 }
+
+block MuonTrackLoaderForCosmic = {   
+    PSet TrackLoaderParameters = {
+	string TrackLoaderPropagator = "SteppingHelixPropagatorAny"
+	bool VertexConstraint = false
+	untracked bool PutTrajectoryIntoEvent = false
+	bool DoSmoothing = false
+	string Smoother = "KFSmootherForMuonTrackLoader"
+    }
+}
