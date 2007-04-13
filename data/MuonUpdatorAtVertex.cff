@@ -1,0 +1,34 @@
+block MuonUpdatorAtVertex = {
+
+    PSet MuonUpdatorAtVertexParameters = {
+	string Propagator = "SteppingHelixPropagatorOpposite"
+	
+	## assume beam spot position with nominal errors
+	## sigma(x) = sigma(y) = 15 microns
+	## sigma(z) = 5.3 cm
+	## pay attention: BeamSpotPositionErrors doesn't contain the covariance matrix values! 
+	vdouble BeamSpotPosition = {0. , 0. , 0.}
+	vdouble BeamSpotPositionErrors = {15.e-04 , 15.e-04 , 5.3}
+	
+	# max chi2 to accept the constraint at vertex
+	double MaxChi2 = 1000000.
+    }
+}
+
+
+block MuonUpdatorAtVertexAnyDirection = {
+
+    PSet MuonUpdatorAtVertexParameters = {
+	string Propagator = "SteppingHelixPropagatorAny"
+	
+	## assume beam spot position with nominal errors
+	## sigma(x) = sigma(y) = 15 microns
+	## sigma(z) = 5.3 cm
+	## pay attention: BeamSpotPositionErrors doesn't contain the covariance matrix values! 
+	vdouble BeamSpotPosition = {0. , 0. , 0.}
+	vdouble BeamSpotPositionErrors = {15.e-04 , 15.e-04 , 5.3}
+	
+	# max chi2 to accept the constraint at vertex
+	double MaxChi2 = 1000000.
+    }
+}
