@@ -50,6 +50,8 @@ block MuonTrackLoaderForL3 = {
 	untracked string MuonSeededTracksInstance = "L2Seeded"
 
 	bool DoSmoothing = true
+	untracked bool SmoothTkTrack = false
+
 	string Smoother = "KFSmootherForMuonTrackLoader"
     }
 }
