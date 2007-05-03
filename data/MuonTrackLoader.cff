@@ -1,5 +1,5 @@
 include "TrackingTools/KalmanUpdators/data/KFUpdatorESProducer.cfi"
-include "TrackingTools/GeomPropagators/data/SmartPropagator.cfi"
+include "TrackingTools/GeomPropagators/data/SmartPropagator.cff"
 include "RecoMuon/TrackingTools/data/MuonUpdatorAtVertex.cff"
 
 es_module Chi2EstimatorForMuonTrackLoader = Chi2MeasurementEstimatorESProducer
