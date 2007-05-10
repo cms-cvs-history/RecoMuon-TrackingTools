@@ -9,6 +9,8 @@ block MuonServiceProxy = {
 
     PSet ServiceParameters ={
 	
+        untracked bool UseMuonNavigation = true
+
 	untracked vstring Propagators = {
 	    "SteppingHelixPropagatorAny","SteppingHelixPropagatorAlong","SteppingHelixPropagatorOpposite",
 	    "PropagatorWithMaterial","PropagatorWithMaterialOpposite","SmartPropagator","SmartPropagatorOpposite"}
