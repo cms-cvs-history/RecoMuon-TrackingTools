@@ -16,6 +16,7 @@ es_module KFSmootherForMuonTrackLoader = KFTrajectorySmootherESProducer
     string Propagator = "SmartPropagatorAnyOpposite"
     string Updator = "KFUpdator"
     string Estimator = "Chi2EstimatorForMuonTrackLoader"
+    double errorRescaling = 5.
 }
 
 block MuonTrackLoaderForSTA = {   
