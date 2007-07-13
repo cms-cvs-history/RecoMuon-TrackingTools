@@ -65,6 +65,7 @@ block MuonTrackLoaderForCosmic = {
 	using MuonUpdatorAtVertexAnyDirection
 	
 	untracked bool PutTrajectoryIntoEvent = false
+        untracked bool AllowNoVertex = true
 	
 	bool DoSmoothing = false
 	string Smoother = "KFSmootherForMuonTrackLoader"
