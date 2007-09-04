@@ -1,0 +1,24 @@
+#produce the mag field
+include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"
+
+#produce the associator
+include "SimTracker/TrackAssociation/data/TrackAssociatorByChi2.cfi"
+include "SimTracker/TrackAssociation/data/TrackAssociatorByHits.cfi"
+include "SimTracker/TrackAssociation/data/TrackAssociatorByPosition.cff"
+
+block errorMatrix_default = {
+        int32 NPt = 10
+	vdouble PtBins = {}  # set NPt=0 and the vector of double for variable size binning
+        double minPt = 0
+        double maxPt = 200
+        int32 NEta = 10
+	vdouble EtaBins = {} # set NEta=0 and the vector of double for variable size binning
+        double minEta = 0
+        double maxEta = 2.5
+        int32 NPhi = 1
+        string minPhi = "-Pi"
+        string maxPhi = "Pi"
+}
+
+#produce the module
+include "RecoMuon/TrackingTools/data/MuonErrorMatrixAnalyzer.cfi"
