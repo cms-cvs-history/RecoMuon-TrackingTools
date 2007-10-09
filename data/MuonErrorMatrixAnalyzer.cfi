@@ -2,6 +2,9 @@ module muonErrorMatrixAnalyzer = MuonErrorMatrixAnalyzer{
 	InputTag trackLabel = standAloneMuons:UpdatedAtVtx
 	InputTag trackingParticleLabel = trackingParticles
 	string associatorName = "TrackAssociatorByPosition"
+	double radius = 0
+	# if radius is not 0, a propagator needs to be specified to go to that radius
+	string propagatorName = "SteppingHelixPropagatorAlong"
 
 	PSet errorMatrix_Reported_pset = {
 		string action = "constructor"
@@ -15,6 +18,7 @@ module muonErrorMatrixAnalyzer = MuonErrorMatrixAnalyzer{
 		using errorMatrix_default	
 	}
 
+	untracked double gaussianPullFitRange = 2.0
 	PSet errorMatrix_Pull_pset = {
 		string action = "constructor"
 		string rootFileName = "errorMatrix_Pull.root"
