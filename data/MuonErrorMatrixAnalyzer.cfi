@@ -5,7 +5,8 @@ module muonErrorMatrixAnalyzer = MuonErrorMatrixAnalyzer{
 	double radius = 0
 	# if radius is not 0, a propagator needs to be specified to go to that radius
 	string propagatorName = "SteppingHelixPropagatorAlong"
-
+	# if radius is not 0, z need to be specified to bound the cylinder. Z=0 means NO bound
+	double z=0
 	PSet errorMatrix_Reported_pset = {
 		string action = "constructor"
 		string rootFileName = "errorMatrix_Reported.root"
