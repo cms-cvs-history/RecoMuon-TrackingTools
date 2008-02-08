@@ -1,3 +1,17 @@
+block errorMatrix_default = {
+        int32 NPt = 10
+        vdouble PtBins = {}  # set NPt=0 and the vector of double for variable size binning
+        double minPt = 0
+        double maxPt = 200
+        int32 NEta = 10
+        vdouble EtaBins = {} # set NEta=0 and the vector of double for variable size binning
+        double minEta = 0
+        double maxEta = 2.5
+        int32 NPhi = 1
+        string minPhi = "-Pi"
+        string maxPhi = "Pi"
+}
+
 module muonErrorMatrixAnalyzer = MuonErrorMatrixAnalyzer{
 	InputTag trackLabel = standAloneMuons:UpdatedAtVtx
 	InputTag trackingParticleLabel = trackingParticles
