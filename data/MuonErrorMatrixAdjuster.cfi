@@ -6,7 +6,9 @@ module muonErrorMatrixAdjuster = MuonErrorMatrixAdjuster {
 #this is the root file with the TProfile 3D in it of the track collection. Make sure it corresponds to the boolean above
 	PSet errorMatrix_pset = {
 		string action ="use"
-		string rootFileName = "errorMatrix_ScaleFactor.root"
+		# use either one of the two following lines
+		#string rootFileName = "errorMatrix_ScaleFactor.root"
+		use MuonErrorMatrixValues
 	}
 
 #if replace is true this means error matrix from reco is replaced by new method of error matrix (reco minus sim of parameters to get the error)

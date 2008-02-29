@@ -1,5 +1,8 @@
 #produce the mag field
 include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"
 
+#values for correction
+include "RecoMuon/TrackingTools/data/MuonErrorMatrixValues.cff"
+
 #produce the module
 include "RecoMuon/TrackingTools/data/MuonErrorMatrixAdjuster.cfi"
