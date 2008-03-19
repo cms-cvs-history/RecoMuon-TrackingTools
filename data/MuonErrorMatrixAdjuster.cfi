@@ -8,7 +8,7 @@ module muonErrorMatrixAdjuster = MuonErrorMatrixAdjuster {
 		string action ="use"
 		# use either one of the two following lines
 		#string rootFileName = "errorMatrix_ScaleFactor.root"
-		use MuonErrorMatrixValues
+		using MuonErrorMatrixValues
 	}
 
 #if replace is true this means error matrix from reco is replaced by new method of error matrix (reco minus sim of parameters to get the error)
