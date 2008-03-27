@@ -1,3 +1,7 @@
+
+#values for correction
+include "RecoMuon/TrackingTools/data/MuonErrorMatrixValues.cff"
+
 module muonErrorMatrixAdjuster = MuonErrorMatrixAdjuster {
         InputTag trackLabel = standAloneMuons:UpdatedAtVtx
         InputTag rechitLabel = standAloneMuons
