@@ -1,5 +1,4 @@
 #produce the mag field
-include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"
 
 #produce the associator
 include "SimTracker/TrackAssociation/data/TrackAssociatorByChi2.cfi"
