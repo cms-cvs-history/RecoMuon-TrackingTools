@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 #produce the mag field
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 #produce the associator
 from SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi import *
 from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
@@ -10,4 +9,5 @@ from SimTracker.TrackAssociation.TrackAssociatorByPosition_cff import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import *
 #produce the module
 from RecoMuon.TrackingTools.MuonErrorMatrixAnalyzer_cfi import *
+
 
