@@ -3,6 +3,7 @@ include "TrackingTools/MaterialEffects/data/OppositeMaterialPropagator.cfi"
 include "TrackPropagation/SteppingHelixPropagator/data/SteppingHelixPropagatorAlong.cfi"
 include "TrackPropagation/SteppingHelixPropagator/data/SteppingHelixPropagatorOpposite.cfi"
 include "TrackPropagation/SteppingHelixPropagator/data/SteppingHelixPropagatorAny.cfi"
+include "TrackPropagation/SteppingHelixPropagator/data/SteppingHelixPropagatorHLT.cff"
 include "TrackingTools/GeomPropagators/data/SmartPropagator.cff"
 include "TrackingTools/GeomPropagators/data/SmartPropagatorAnyOpposite.cfi"
 include "TrackingTools/GeomPropagators/data/SmartPropagatorAny.cfi"
@@ -16,6 +17,7 @@ block MuonServiceProxy = {
 
 	untracked vstring Propagators = {
 	    "SteppingHelixPropagatorAny","SteppingHelixPropagatorAlong","SteppingHelixPropagatorOpposite",
+	    "SteppingHelixPropagatorL2Any","SteppingHelixPropagatorL2Along","SteppingHelixPropagatorL2Opposite",
 	    "PropagatorWithMaterial","PropagatorWithMaterialOpposite","SmartPropagator","SmartPropagatorOpposite",
 	    "SmartPropagatorAnyOpposite","SmartPropagatorAny","SmartPropagatorRK","SmartPropagatorAnyRK"}
     }
