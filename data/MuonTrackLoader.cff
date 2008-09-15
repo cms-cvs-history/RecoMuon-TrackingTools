@@ -20,6 +20,17 @@ es_module KFSmootherForMuonTrackLoader = KFTrajectorySmootherESProducer
     int32 minHits = 3
 }
 
+es_module KFSmootherForMuonTrackLoaderL3 = KFTrajectorySmootherESProducer
+{
+    string ComponentName = "KFSmootherForMuonTrackLoaderL3"
+    
+    string Propagator = "SmartPropagatorAnyOpposite"
+    string Updator = "KFUpdator"
+    string Estimator = "Chi2EstimatorForMuonTrackLoader"
+    double errorRescaling = 10.
+    int32 minHits = 3
+}
+
 block MuonTrackLoaderForSTA = {   
     PSet TrackLoaderParameters = {
 
@@ -54,7 +65,7 @@ block MuonTrackLoaderForL3 = {
 	bool DoSmoothing = true
 	untracked bool SmoothTkTrack = false
 
-	string Smoother = "KFSmootherForMuonTrackLoader"
+	string Smoother = "KFSmootherForMuonTrackLoaderL3"
     }
 }
 
