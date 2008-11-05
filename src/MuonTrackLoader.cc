@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/08/05 16:07:28 $
- *  $Revision: 1.68 $
+ *  $Date: 2008/10/30 18:19:23 $
+ *  $Revision: 1.72 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -21,6 +21,10 @@
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -307,9 +311,11 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   TrajectoryContainer combinedTrajs;
   TrajectoryContainer trackerTrajs;
   for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
-    LogDebug(metname) << "Loader glbSeedRef " << (*it)->trajectory()->seedRef().isNonnull()  << " " << "tkSeedRef " << (*it)->trackerTrajectory()->seedRef().isNonnull();
+    LogDebug(metname) << "Loader glbSeedRef " << (*it)->trajectory()->seedRef().isNonnull();
+    if ((*it)->trackerTrajectory() )  LogDebug(metname) << " " << "tkSeedRef " << (*it)->trackerTrajectory()->seedRef().isNonnull();
+
     combinedTrajs.push_back((*it)->trajectory());
-    trackerTrajs.push_back((*it)->trackerTrajectory());
+    if ( thePutTkTrackFlag ) trackerTrajs.push_back((*it)->trackerTrajectory());
   
     // Create the links between sta and tracker tracks
     reco::MuonTrackLinks links;
@@ -344,10 +350,27 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     links->setGlobalTrack(combinedTR);
     if(thePutTkTrackFlag) links->setTrackerTrack(trackerTR);
   }
+
+  //missing hits quality check  
+  for (  links = trackLinksCollection->begin();  links != trackLinksCollection->end(); ++links ) {
+    int hitTk = ( links->trackerTrack().isNonnull()) ? links->trackerTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
+    int hitGlbTk = ( links->globalTrack().isNonnull()) ?  links->globalTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
+    int hitSta =  ( links->standAloneTrack().isNonnull()) ? links->standAloneTrack().get()->recHitsSize() : 0;
+    int hitGlbSta = ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidMuonHits() : 0;
+    int hitGlb =  ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidHits() : 0;
+        
+    int missingSta = hitSta-hitGlbSta;
+    int missingTk = hitTk-hitGlbTk;
+    
+    if (fabs(missingSta + missingTk) > 3){
+      LogTrace(metname)<<"Global Muon Missing Hits!";
+      LogTrace(metname)<<" nGlb: " << hitGlb << " nSta: " << hitSta << " nTk:" << hitTk << " nStaMissing: " <<  missingSta << " nTkMissing: " << missingTk;
+    }
+  }
   
   // put the MuonCollection in the event
   LogTrace(metname) << "put the MuonCollection in the event" << "\n";
-
+  
   return event.put(trackLinksCollection);
 }
 
@@ -667,13 +690,17 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   TrajectoryStateOnSurface outerTSOS;
   TrajectoryStateOnSurface innerTSOS;
   unsigned int innerId=0, outerId=0;
-  
+  TrajectoryMeasurement::ConstRecHitPointer outerRecHit;
+  DetId outerDetId;
+
   if (trajectory.direction() == alongMomentum) {
     LogTrace(metname)<<"alongMomentum";
     outerTSOS = trajectory.lastMeasurement().updatedState();
     innerTSOS = trajectory.firstMeasurement().updatedState();
     outerId = trajectory.lastMeasurement().recHit()->geographicalId().rawId();
     innerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();
+    outerRecHit =  trajectory.lastMeasurement().recHit();
+    outerDetId =   trajectory.lastMeasurement().recHit()->geographicalId();
   } 
   else if (trajectory.direction() == oppositeToMomentum) {
     LogTrace(metname)<<"oppositeToMomentum";
@@ -681,15 +708,30 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
     innerTSOS = trajectory.lastMeasurement().updatedState();
     outerId = trajectory.firstMeasurement().recHit()->geographicalId().rawId();
     innerId = trajectory.lastMeasurement().recHit()->geographicalId().rawId();
+    outerRecHit =  trajectory.firstMeasurement().recHit();
+    outerDetId =   trajectory.firstMeasurement().recHit()->geographicalId();
   }
   else LogError(metname)<<"Wrong propagation direction!";
   
+  const GeomDet *outerDet = theService->trackingGeometry()->idToDet(outerDetId);
+  GlobalPoint outerTSOSPos = outerTSOS.globalParameters().position();
+  bool inside = outerDet->surface().bounds().inside(outerDet->toLocal(outerTSOSPos));
+
+  
+  GlobalPoint hitPos = (outerRecHit->isValid()) ? outerRecHit->globalPosition() :  outerTSOS.globalParameters().position() ;
+  
+  if(!inside) {
+    LogTrace(metname)<<"The Global Muon outerMostMeasurementState is not compatible with the recHit detector! Setting outerMost postition to recHit position if recHit isValid: " << outerRecHit->isValid();
+    LogTrace(metname)<<"From " << outerTSOSPos << " to " <<  hitPos;
+  }
+  
+  
   //build the TrackExtra
-  GlobalPoint v = outerTSOS.globalParameters().position();
+  GlobalPoint v = (inside) ? outerTSOSPos : hitPos ;
   GlobalVector p = outerTSOS.globalParameters().momentum();
   math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
   math::XYZVector outmom( p.x(), p.y(), p.z() );
-
+  
   v = innerTSOS.globalParameters().position();
   p = innerTSOS.globalParameters().momentum();
   math::XYZPoint  inpos( v.x(), v.y(), v.z() );   
@@ -703,4 +745,3 @@ reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) 
   return trackExtra;
  
 }
-

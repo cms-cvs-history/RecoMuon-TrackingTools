@@ -1,12 +1,13 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2008/02/04 14:53:06 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/08/13 16:33:25 $
+ *  $Revision: 1.20 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std; 
@@ -36,6 +37,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   
   for ( iter = trajC.begin(); iter != trajC.end(); iter++ ) {
     if ( !mask[i] ) { i++; continue; }
+    if ( !(*iter)->isValid() || (*iter)->empty() ) {mask[i] = false; i++; continue; }
     const Trajectory::DataContainer& meas1 = (*iter)->measurements();
     j = i+1;
     bool skipnext=false;
@@ -49,51 +51,80 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
         }
       }
       
-      LogTrace(metname) 
-	<< " MuonTrajSelector: trajC " << i << " chi2/nRH = " 
-	<< (*iter)->chiSquared() << "/" << (*iter)->foundHits() <<
-	" vs trajC " << j << " chi2/nRH = " << (*jter)->chiSquared() <<
-	"/" << (*jter)->foundHits() << " Shared RecHits: " << match;
 
-      // get the chi2()/d.o.f
-      
       // FIXME Set Boff/on via cfg!
-      double chi2_dof_i = (*iter)->ndof();
-      double chi2_dof_j = (*jter)->ndof();
+      double chi2_dof_i = (*iter)->chiSquared()/(*iter)->ndof();
+      double chi2_dof_j = (*jter)->chiSquared()/(*jter)->ndof();
+
+      LogTrace(metname) 
+	<< " MuonTrajectoryCleaner: trajC " 
+	<< i << "(pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV)"
+	<< " chi2/nDOF = " << (*iter)->chiSquared() << "/" << (*iter)->ndof() 
+	<< " (RH=" << (*iter)->foundHits() << ") = " << chi2_dof_i
+	<< " vs trajC " 
+	<< j << "(pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV)"
+	<< " chi2/nRH = " << (*jter)->chiSquared() << "/" <<  (*jter)->ndof() 
+	<< " (RH=" << (*jter)->foundHits() << ") = " << chi2_dof_j
+	<< " Shared RecHits: " << match; 
+
       int hit_diff =  (*iter)->foundHits() - (*jter)->foundHits() ;       
       // If there are matches, reject the worst track
       if ( match > 0 ) {
         // If the difference of # of rechits is less than 4, compare the chi2/ndf
         if ( abs(hit_diff) <= 4  ) {
-          if ( chi2_dof_i  > chi2_dof_j ) {
-            mask[i] = false;
-            skipnext=true;
-          }
-          else mask[j] = false;
-        }
+
+	  double minPt = 3.5;
+	  double dPt = 7.;  // i.e. considering 10% (conservative!) resolution at minPt it is ~ 10 sigma away from the central value
+
+	  double maxFraction = 0.95;
+
+       	  double fraction = (2.*match)/((*iter)->foundHits()+(*jter)->foundHits());
+	  int belowLimit = 0;
+	  int above = 0;
+
+	  if((*jter)->lastMeasurement().updatedState().globalMomentum().perp() <= minPt) ++belowLimit; 
+	  if((*iter)->lastMeasurement().updatedState().globalMomentum().perp() <= minPt) ++belowLimit; 
+	 
+	  if((*jter)->lastMeasurement().updatedState().globalMomentum().perp() >= dPt) ++above; 
+	  if((*iter)->lastMeasurement().updatedState().globalMomentum().perp() >= dPt) ++above; 
+	  
+
+	  if(fraction >= maxFraction && belowLimit == 1 && above == 1){
+	    if((*iter)->lastMeasurement().updatedState().globalMomentum().perp() < minPt){
+	      mask[i] = false;
+	      skipnext=true;
+	      LogTrace(metname) << "Trajectory # " << i << " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() 
+				<< " GeV) rejected because it has too low pt";
+	    } 
+	    else {
+	      mask[j] = false;
+	      LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() 
+				<< " GeV) rejected because it has too low pt";
+	    }
+	  }
+	  else{   
+	    if (chi2_dof_i  > chi2_dof_j) {
+	      mask[i] = false;
+	      skipnext=true;
+	      LogTrace(metname) << "Trajectory # " << i << " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
+	    }
+	    else{
+	      mask[j] = false;
+	      LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
+	    }
+	  }
+	}
         else { // different number of hits
           if ( hit_diff < 0 ) {
             mask[i] = false;
             skipnext=true;
+	    LogTrace(metname) << "Trajectory # " << i << " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
           }
-          else mask[j] = false;
-        }
-
-//         if (  (*iter)->foundHits() == (*jter)->foundHits() ) {
-//           if ( (*iter)->chiSquared() > (*jter)->chiSquared() ) {
-//             mask[i] = false;
-//             skipnext=true;
-//           }
-//           else mask[j] = false;
-//         }
-//         else { // different number of hits
-//           if ( (*iter)->foundHits() < (*jter)->foundHits() ) {
-// 	    mask[i] = false;
-//             skipnext=true;
-//           }
-//           else mask[j] = false;
-// 	}
-        
+          else { 
+	    mask[j] = false;
+	    LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
+	  }
+        } 
       }
       if(skipnext) break;
       j++;
@@ -104,7 +135,10 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   
   i = 0;
   for ( iter = trajC.begin(); iter != trajC.end(); iter++ ) {
-    if ( mask[i] ) result.push_back(*iter);
+    if ( mask[i] ){
+      result.push_back(*iter);
+      LogTrace(metname) << "Keep trajectory with pT = " << (*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV";
+    }
     else delete *iter;
     i++;
   }
@@ -176,7 +210,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
       }
       
       LogTrace(metname) 
-	<< " MuonTrajSelector: candC " << i << " chi2/nRH = " 
+	<< " MuonTrajectoryCleaner: candC " << i << " chi2/nRH = " 
 	<< (*iter)->trajectory()->chiSquared() << "/" << (*iter)->trajectory()->foundHits() <<
 	" vs trajC " << j << " chi2/nRH = " << (*jter)->trajectory()->chiSquared() <<
 	"/" << (*jter)->trajectory()->foundHits() << " Shared RecHits: " << match;
@@ -200,15 +234,18 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
       if ( dpt < deltaPt && deta < deltaEta && dphi < deltaPhi ) {
         directionMatch = true;
         LogTrace(metname)
-        << " MuonTrajSelector: candC " << i<<" and "<<j<< " direction matched: "
+        << " MuonTrajectoryCleaner: candC " << i<<" and "<<j<< " direction matched: "
         <<innerTSOS.globalMomentum()<<" and " <<innerTSOS2.globalMomentum();
 
       }
       
       // If there are matches, reject the worst track
       bool hitsMatch = ((match > 0) && (match/((*iter)->trajectory()->foundHits()) > 0.25) || (match/((*jter)->trajectory()->foundHits()) > 0.25)) ? true : false;
-      
-      if ( (hitsMatch > 0) || directionMatch ) {
+      bool tracksMatch = 
+      ( ( (*iter)->trackerTrack() == (*jter)->trackerTrack() ) && 
+        ( deltaR<double>((*iter)->muonTrack()->eta(),(*iter)->muonTrack()->phi(), (*jter)->muonTrack()->eta(),(*jter)->muonTrack()->phi()) < 0.2) );
+
+      if ( ( tracksMatch ) || (hitsMatch > 0) || directionMatch ) {
 	if (  (*iter)->trajectory()->foundHits() == (*jter)->trajectory()->foundHits() ) {
           if ( (*iter)->trajectory()->chiSquared() > (*jter)->trajectory()->chiSquared() ) {
             mask[i] = false;
