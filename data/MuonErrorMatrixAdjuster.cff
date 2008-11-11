@@ -1,4 +1,0 @@
-#produce the mag field
-
-#produce the module
-include "RecoMuon/TrackingTools/data/MuonErrorMatrixAdjuster.cfi"
