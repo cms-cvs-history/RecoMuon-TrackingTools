@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/08/05 16:07:28 $
- *  $Revision: 1.68 $
+ *  $Date: 2008/10/31 14:59:46 $
+ *  $Revision: 1.69.2.1 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -282,7 +282,6 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   
   // the muon collection, it will be loaded in the event
   auto_ptr<reco::MuonTrackLinksCollection> trackLinksCollection(new reco::MuonTrackLinksCollection());
-  
   // don't waste any time...
   if ( muonCands.empty() ) {
     auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
@@ -302,15 +301,16 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 
     return event.put(trackLinksCollection);
   }
-  
+
   // get combined Trajectories
   TrajectoryContainer combinedTrajs;
   TrajectoryContainer trackerTrajs;
+
   for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
-    LogDebug(metname) << "Loader glbSeedRef " << (*it)->trajectory()->seedRef().isNonnull()  << " " << "tkSeedRef " << (*it)->trackerTrajectory()->seedRef().isNonnull();
+    LogDebug(metname) << "Loader glbSeedRef " << (*it)->trajectory()->seedRef().isNonnull();
+    if ((*it)->trackerTrajectory() )  LogDebug(metname) << " " << "tkSeedRef " << (*it)->trackerTrajectory()->seedRef().isNonnull();
     combinedTrajs.push_back((*it)->trajectory());
-    trackerTrajs.push_back((*it)->trackerTrajectory());
-  
+    if ( thePutTkTrackFlag ) trackerTrajs.push_back((*it)->trackerTrajectory());
     // Create the links between sta and tracker tracks
     reco::MuonTrackLinks links;
     links.setStandAloneTrack((*it)->muonTrack());
@@ -318,7 +318,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     trackLinksCollection->push_back(links);
     delete *it;
   }
-  
+
   // create the TrackCollection of combined Trajectories
   // FIXME: could this be done one track at a time in the previous loop?
   OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
@@ -547,18 +547,7 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajec
 
   MuonPatternRecoDumper debug;
   
-  // FIXME: check the prop direction
-  TrajectoryStateOnSurface innerTSOS;
-  
-  if (trajectory.direction() == alongMomentum) {
-    LogTrace(metname)<<"alongMomentum";
-    innerTSOS = trajectory.firstMeasurement().updatedState();
-  } 
-  else if (trajectory.direction() == oppositeToMomentum) { 
-    LogTrace(metname)<<"oppositeToMomentum";
-    innerTSOS = trajectory.lastMeasurement().updatedState();
-  }
-  else LogError(metname)<<"Wrong propagation direction!";
+  TrajectoryStateOnSurface innerTSOS = trajectory.geometricalInnermostState();
   
   LogTrace(metname) << "TSOS before the extrapolation at PCA";
   LogTrace(metname) << debug.dumpTSOS(innerTSOS);
