@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2009/02/18 18:22:26 $
- *  $Revision: 1.36 $
+ *  $Date: 2009/03/05 18:21:13 $
+ *  $Revision: 1.38 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -15,7 +15,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -82,7 +82,7 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos, const reco:
   if(TrackerBounds::isInside(tsos.globalPosition())){
     LogTrace(metname) << "Trajectory inside the Tracker";
 
-    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TSCBLBuilderNoMaterial tscblBuilder;
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(tsos.freeState()),
 							  beamSpot);
 
@@ -117,26 +117,20 @@ MuonUpdatorAtVertex::update(const reco::TransientTrack & track, const reco::Beam
     
   
   pair<bool,FreeTrajectoryState> result(false,FreeTrajectoryState());
+
+  GlobalPoint spotPos(beamSpot.x0(),beamSpot.y0(),beamSpot.z0());
+  SingleTrackVertexConstraint::BTFtuple constrainedTransientTrack = theConstrictor.constrain(track, spotPos, thePositionErrors);
   
-  SingleTrackVertexConstraint::TrackFloatPair constrainedTransientTrack;
-
-  try{
-    GlobalPoint spotPos(beamSpot.x0(),beamSpot.y0(),beamSpot.z0());
-    constrainedTransientTrack = theConstrictor.constrain(track, spotPos, thePositionErrors);
-  }
-  catch ( cms::Exception& e ) {
-    edm::LogWarning(metname) << "cms::Exception caught in MuonUpdatorAtVertex::update\n"
-			     << e.explainSelf();
-    return result;
-  }
-
-  if(constrainedTransientTrack.second <= theChi2Cut) {
-    result.first = true;
-    result.second = *constrainedTransientTrack.first.impactPointState().freeState();
-  }
+  if(constrainedTransientTrack.get<0>())
+    if(constrainedTransientTrack.get<2>() <= theChi2Cut) {
+      result.first = true;
+      result.second = *constrainedTransientTrack.get<1>().impactPointState().freeState();
+    }
+    else
+      LogTrace(metname) << "Constraint at vertex failed: too large chi2"; 
   else
-    edm::LogInfo(metname) << "Constraint at vertex failed"; 
-    
+    LogTrace(metname) << "Constraint at vertex failed"; 
+  
   return result;
 }
 
