@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/10/31 14:59:46 $
- *  $Revision: 1.69.2.1 $
+ *  $Date: 2009/01/08 02:46:56 $
+ *  $Revision: 1.69.4.1 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -215,7 +215,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       if((**recHit).isValid()){
 	TrackingRecHit *singleHit = (**recHit).hit()->clone();
 	track.setHitPattern( *singleHit, i ++ );
-	if(theUpdatingAtVtx && updateResult.first) updateResult.second.setHitPattern( *singleHit, i ++ );
+	if(theUpdatingAtVtx && updateResult.first) updateResult.second.setHitPattern( *singleHit, i-1 );
 	recHitCollection->push_back( singleHit );  
 	// set the TrackingRecHitRef (persitent reference of the tracking rec hits)
 	trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
