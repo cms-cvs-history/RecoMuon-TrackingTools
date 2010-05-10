@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2010/03/24 19:52:53 $
- *  $Revision: 1.29 $
+ *  $Date: 2010/03/07 17:30:47 $
+ *  $Revision: 1.28 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -55,7 +55,11 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event)
       const Trajectory::DataContainer& meas2 = (*jter)->measurements();
       match = 0;
       for ( m1 = meas1.begin(); m1 != meas1.end(); m1++ ) {
+	if( !(*m1).recHit()->isValid() )
+	  continue;
         for ( m2 = meas2.begin(); m2 != meas2.end(); m2++ ) {
+	  if( !(*m2).recHit()->isValid() )
+	    continue;
 	  if ( ( (*m1).recHit()->globalPosition() - (*m2).recHit()->globalPosition()).mag()< 10e-5 ) match++;
         }
       }
@@ -87,7 +91,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event)
 
 	  double maxFraction = 0.95;
 
-       	  double fraction = (2.*match)/((*iter)->measurements().size()+(*jter)->measurements().size());
+       	  double fraction = (2.*match)/((*iter)->foundHits()+(*jter)->foundHits());
 	  int belowLimit = 0;
 	  int above = 0;
 
