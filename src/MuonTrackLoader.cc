@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2010/03/07 17:30:47 $
- *  $Revision: 1.81 $
+ *  $Date: 2010/05/10 00:29:25 $
+ *  $Revision: 1.82 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -357,6 +357,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   }
 
   //missing hits quality check  
+  if( combinedTracks->size() > 0 && trackerTracks->size() > 0 ) {
   for (  links = trackLinksCollection->begin();  links != trackLinksCollection->end(); ++links ) {
     int hitTk = ( links->trackerTrack().isNonnull()) ? links->trackerTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
     int hitGlbTk = ( links->globalTrack().isNonnull()) ?  links->globalTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
@@ -371,6 +372,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
       LogTrace(metname)<<"Global Muon Missing Hits!";
       LogTrace(metname)<<" nGlb: " << hitGlb << " nSta: " << hitSta << " nTk:" << hitTk << " nStaMissing: " <<  missingSta << " nTkMissing: " << missingTk;
     }
+  }
   }
   
   // put the MuonCollection in the event
