@@ -119,11 +119,18 @@ reco::TrackExtra * MuonErrorMatrixAdjuster::makeTrackExtra(const reco::Track & r
   multiply(innerCov,scale_matrix);
 
   //put the trackExtra
-  TEcol.push_back(reco::TrackExtra (trackExtra_orig->outerPosition(), trackExtra_orig->outerMomentum(), true,
-				    trackExtra_orig->innerPosition(), trackExtra_orig->innerMomentum(), true,
-				    outerCov, trackExtra_orig->outerDetId(),
-				    innerCov, trackExtra_orig->innerDetId(),
-				    trackExtra_orig->seedDirection()));
+  // Use the reduced extra(AA)
+//  TEcol.push_back(reco::TrackExtra (trackExtra_orig->outerPosition(), trackExtra_orig->outerMomentum(), true,
+//            trackExtra_orig->innerPosition(), trackExtra_orig->innerMomentum(), true,
+//            outerCov, trackExtra_orig->outerDetId(),
+//            innerCov, trackExtra_orig->innerDetId(),
+//            trackExtra_orig->seedDirection()));
+  TEcol.push_back(reco::TrackExtra ( true,
+            true,
+            outerCov, trackExtra_orig->outerDetId(),
+            innerCov, trackExtra_orig->innerDetId(),
+            trackExtra_orig->seedDirection()));
+
 
   //add a reference to the trackextra on the track
   recotrack.setExtra(edm::Ref<reco::TrackExtraCollection>( theRefprodTE, theTEi++));
